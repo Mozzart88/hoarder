@@ -1,0 +1,41 @@
+name: Run Tests on PR
+
+on:
+  pull_request:
+    branches:
+      - '*'
+    paths-ignore:
+      - 'main/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.15.0
+
+      - name: Install Dependencies
+        run: npm install --save-dev
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Tests
+        run: npm run coverage -- node --test --test-reporter-destination test.tap --test-reporter tap --test-reporter-destination stdout --test-reporter dot  build/test/
+    
+      - name: Upload test results artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests-results
+          path: |
+            tests.tap
+            tests.spec
+            ./coverage
+
