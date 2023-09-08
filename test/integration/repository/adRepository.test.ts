@@ -2,10 +2,12 @@ import {describe, it} from 'node:test'
 import AdRepository from '../../../src/repository/adRepository.js'
 import assert from 'node:assert'
 import Ad from '../../../src/entity/ad.js'
+import {MongoOptions} from 'mongodb'
 
 describe('AdRepository Positive', () => {
-  const opts = {
-    url: 'some url',
+  const [dbUser, dbPassword] = ['user', 'example']
+  const opts: {url: string; conf?: MongoOptions} = {
+    url: `mongodb://${dbUser}:${dbPassword}@localhost:27017/`,
   }
   const repo = new AdRepository(opts)
   const ad: Ad = {
@@ -36,9 +38,9 @@ describe('AdRepository Positive', () => {
       name: 'tom',
     },
   }
-  it('.add', () => {
+  it('.add', async () => {
     try {
-      const actual = repo.add({fields: ad})
+      const actual = await repo.add({fields: ad})
       ad.id = actual.id
       assert.deepEqual(actual, ad)
     } catch (e) {

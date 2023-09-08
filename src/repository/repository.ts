@@ -1,6 +1,6 @@
-export default interface Repository<T> {
-  find(query: {find: T}): T | null | never
-  add(query: {fields: T}): T | never
-  update(query: {find: T; fields: T}): boolean | never
-  dalete(query: {find: T}): boolean | never
+export default interface Repository<Ent> {
+  find(query: {find: Ent}): Promise<Ent> | Ent | null | never
+  add(query: {fields: Ent}): Promise<Ent> | Ent | never
+  update(query: {find: Ent; fields: Ent}): Promise<boolean> | boolean | never
+  dalete(query: {find: Ent}): Promise<boolean> | boolean | never
 }
