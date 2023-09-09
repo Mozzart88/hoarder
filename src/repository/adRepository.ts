@@ -1,5 +1,6 @@
 import {
   Collection,
+  FindOneAndDeleteOptions,
   FindOneAndUpdateOptions,
   MongoClient,
   MongoOptions,
@@ -73,8 +74,21 @@ export default class AdRepository implements Repository<OAd, RAd> {
     }
   }
 
-  dalete(query: TQuery<{find: Ad<Optional>}>): Promise<boolean> {
-    void query
-    throw new Error('Method not implemented.')
+  async dalete(
+    query: TQuery<
+      {find: Ad<Optional>; options: FindOneAndDeleteOptions},
+      FindOneAndUpdateOptions & {
+        includeResultMetadata: true
+      }
+    >
+  ): Promise<boolean> {
+    const {find, options} = query
+    try {
+      const collection = await this.connect()
+      await collection.findOneAndDelete(find, options)
+      return true
+    } finally {
+      await this.close()
+    }
   }
 }

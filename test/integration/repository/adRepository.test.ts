@@ -107,14 +107,17 @@ describe('AdRepository Positive', () => {
     assert.strictEqual((newAd as unknown as Ad<Required>[])[0].satus, 'active')
   })
 
-  // it('.delete', () => {
-  //   const actual = repo.dalete({
-  //     find: {
-  //       id: ad.id,
-  //     },
-  //   })
-  //   assert.strictEqual(actual, true)
-  //   const notFound = repo.find({find: {id: ad.id}})
-  //   assert.strictEqual(notFound, null)
-  // })
+  it('.delete', async () => {
+    const actual = await repo.dalete({
+      find: {
+        _id: new ObjectId(ad._id),
+      },
+      options: {
+        includeResultMetadata: true,
+      },
+    })
+    assert.strictEqual(actual, true)
+    const notFound = await repo.find({find: {_id: ad._id}})
+    assert.strictEqual(notFound, null)
+  })
 })
