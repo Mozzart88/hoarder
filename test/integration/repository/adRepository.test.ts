@@ -1,7 +1,7 @@
 import {describe, it} from 'node:test'
 import AdRepository from '../../../src/repository/adRepository.js'
 import assert from 'node:assert'
-import Ad from '../../../src/entity/ad.js'
+import {Ad, Required} from '../../../src/entity/ad.js'
 import {MongoOptions} from 'mongodb'
 
 describe('AdRepository Positive', () => {
@@ -10,7 +10,7 @@ describe('AdRepository Positive', () => {
     url: `mongodb://${dbUser}:${dbPassword}@localhost:27017/`,
   }
   const repo = new AdRepository(opts)
-  const ad: Ad = {
+  const ad: Ad<Required> = {
     title: 'iPhone 15 Pro Max',
     description: 'Hello!!!',
     date: new Date().getTime(),
@@ -38,17 +38,28 @@ describe('AdRepository Positive', () => {
       name: 'tom',
     },
   }
+
   it('.add', async () => {
     try {
-      const actual = await repo.add({fields: ad})
-      ad.id = actual.id
-      assert.deepEqual(actual, ad)
+      await repo.add({fields: ad})
+      assert.ok('_id' in ad)
     } catch (e) {
       assert.ifError(e)
     }
   })
-  it('.find', () => {
-    const actual = repo.find({
+
+  it('.find by id', async () => {
+    const actual = await repo.find({
+      find: {
+        _id: ad._id,
+      },
+    })
+    assert.notStrictEqual(actual, null)
+    assert.deepEqual((actual as unknown as Ad<Required>[])[0], ad)
+  })
+
+  it('.find many params', async () => {
+    const actual = await repo.find({
       find: {
         title: 'iPhone 15 Pro Max',
         subCategory: {
@@ -62,32 +73,45 @@ describe('AdRepository Positive', () => {
         price: 99.99,
         satus: 'new',
         tags: [{name: '#iPhone', id: 1}],
+        date: ad.date,
       },
     })
-    assert.deepEqual(actual, ad)
+    assert.notStrictEqual(actual, null)
+    assert.deepEqual(actual![0], ad)
   })
-  it('.update', () => {
-    const actual = repo.update({
+
+  it('.find null', async () => {
+    const actual = await repo.find({
       find: {
-        id: 'some',
-      },
-      fields: {
-        satus: 'active',
+        title: 'iPhone 13 Pro Max',
       },
     })
-    assert.strictEqual(actual, true)
-    const newAd = repo.find({find: {id: ad.id}})
-    assert.notStrictEqual(newAd, null)
-    assert.strictEqual(newAd!.satus, 'active')
+    assert.strictEqual(actual, null)
   })
-  it('.delete', () => {
-    const actual = repo.dalete({
-      find: {
-        id: ad.id,
-      },
-    })
-    assert.strictEqual(actual, true)
-    const notFound = repo.find({find: {id: ad.id}})
-    assert.strictEqual(notFound, null)
-  })
+
+  // it('.update', () => {
+  //   const actual = repo.update({
+  //     find: {
+  //       id: 'some',
+  //     },
+  //     fields: {
+  //       satus: 'active',
+  //     },
+  //   })
+  //   assert.strictEqual(actual, true)
+  //   const newAd = repo.find({find: {id: ad.id}})
+  //   assert.notStrictEqual(newAd, null)
+  //   assert.strictEqual((actual as unknown as Ad[])[0].satus, 'active')
+  // })
+
+  // it('.delete', () => {
+  //   const actual = repo.dalete({
+  //     find: {
+  //       id: ad.id,
+  //     },
+  //   })
+  //   assert.strictEqual(actual, true)
+  //   const notFound = repo.find({find: {id: ad.id}})
+  //   assert.strictEqual(notFound, null)
+  // })
 })

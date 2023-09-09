@@ -1,35 +1,58 @@
-import {Collection, Db, MongoClient, MongoOptions} from 'mongodb'
-import Ad from '../entity/ad.js'
-import Repository from './repository.js'
+import {Collection, MongoClient, MongoOptions} from 'mongodb'
+import {Ad, Optional, Required} from '../entity/ad.js'
+import {Repository, TQuery} from './repository.js'
 
-export default class AdRepository implements Repository<Ad> {
+type OAd = Ad<Optional>
+type RAd = Ad<Required>
+
+export default class AdRepository implements Repository<OAd, RAd> {
   private client: MongoClient
-  db: Db
-  collection: Collection
+  private db: string
+  private collection: string
   constructor(opts: {url: string; conf?: MongoOptions}) {
     this.client = new MongoClient(opts.url, opts.conf)
-    this.db = this.client.db('hoarder')
-    this.collection = this.db.collection('ads')
+    this.db = 'hoarder'
+    this.collection = 'ads'
   }
-  find(query: {find: Ad}): Ad | null {
-    void query
-    throw new Error('Method not implemented.')
+  private async connect(): Promise<Collection<Ad<Required>>> {
+    const client = await this.client.connect()
+    return client.db(this.db).collection(this.collection)
   }
-  async add(query: {fields: Ad}): Promise<Ad> {
+
+  private async close() {
+    await this.client.close()
+  }
+
+  async find(query: TQuery<{find: Ad<Optional>}>): Promise<RAd[] | null> {
+    const {find, options} = query
     try {
-      const res = await this.collection.insertOne(query.fields)
+      const collection = await this.connect()
+      const res = await collection.find(find, options).toArray()
+      if (res.length === 0) return null
+      return res as RAd[]
+    } finally {
+      await this.close()
+    }
+  }
+
+  async add(query: TQuery<{fields: Ad<Required>}>): Promise<void> {
+    const {fields, options} = query
+    try {
+      const collection = await this.connect()
+      const res = await collection.insertOne(fields, options)
       if (res.acknowledged !== true) throw new Error('acknowledgis failed')
-      query.fields.id = res.insertedId.toString('hex')
-      return query.fields
     } finally {
       await this.client.close()
     }
   }
-  update(query: {find: Ad; fields: Ad}): boolean {
+
+  update(
+    query: TQuery<{fields: Ad<Optional>; find: Ad<Optional>}>
+  ): Promise<boolean> {
     void query
     throw new Error('Method not implemented.')
   }
-  dalete(query: {find: Ad}): boolean {
+  dalete(query: TQuery<{find: Ad<Optional>}>): Promise<boolean> {
     void query
     throw new Error('Method not implemented.')
   }

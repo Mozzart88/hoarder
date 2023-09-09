@@ -1,6 +1,28 @@
-export default interface Repository<Ent> {
-  find(query: {find: Ent}): Promise<Ent> | Ent | null | never
-  add(query: {fields: Ent}): Promise<Ent> | Ent | never
-  update(query: {find: Ent; fields: Ent}): Promise<boolean> | boolean | never
-  dalete(query: {find: Ent}): Promise<boolean> | boolean | never
+interface Optional {}
+interface Required {}
+
+type Ent<T extends Optional | Required> = T
+
+interface Query<T extends object> {
+  options?: T
+}
+interface QFind<Ent> {
+  find: Ent
+}
+interface QFields<Ent> {
+  fields: Ent
+}
+
+export type TQuery<
+  T extends QFind<Ent<Optional | Required>> | QFields<Ent<Optional | Required>>,
+> = T & Query<object>
+
+export interface Repository<
+  OEnt extends Ent<Optional>,
+  REnt extends Ent<Required>,
+> {
+  find(query: TQuery<QFind<OEnt>>): Promise<REnt[] | null> | never
+  add(query: TQuery<QFields<REnt>>): Promise<void> | never
+  update(query: TQuery<QFind<OEnt> & QFields<OEnt>>): Promise<boolean> | never
+  dalete(query: TQuery<QFind<OEnt>>): Promise<boolean> | never
 }
