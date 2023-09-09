@@ -1,4 +1,9 @@
-import {Collection, MongoClient, MongoOptions} from 'mongodb'
+import {
+  Collection,
+  FindOneAndUpdateOptions,
+  MongoClient,
+  MongoOptions,
+} from 'mongodb'
 import {Ad, Optional, Required} from '../entity/ad.js'
 import {Repository, TQuery} from './repository.js'
 
@@ -46,12 +51,28 @@ export default class AdRepository implements Repository<OAd, RAd> {
     }
   }
 
-  update(
-    query: TQuery<{fields: Ad<Optional>; find: Ad<Optional>}>
+  async update(
+    query: TQuery<
+      {
+        fields: Ad<Optional>
+        find: Ad<Optional>
+        options: FindOneAndUpdateOptions
+      },
+      FindOneAndUpdateOptions & {
+        includeResultMetadata: true
+      }
+    >
   ): Promise<boolean> {
-    void query
-    throw new Error('Method not implemented.')
+    const {fields, find, options} = query
+    try {
+      const collection = await this.connect()
+      await collection.findOneAndUpdate(find, {$set: fields}, options)
+      return true
+    } finally {
+      await this.close()
+    }
   }
+
   dalete(query: TQuery<{find: Ad<Optional>}>): Promise<boolean> {
     void query
     throw new Error('Method not implemented.')

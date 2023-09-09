@@ -2,7 +2,7 @@ import {describe, it} from 'node:test'
 import AdRepository from '../../../src/repository/adRepository.js'
 import assert from 'node:assert'
 import {Ad, Required} from '../../../src/entity/ad.js'
-import {MongoOptions} from 'mongodb'
+import {MongoOptions, ObjectId} from 'mongodb'
 
 describe('AdRepository Positive', () => {
   const [dbUser, dbPassword] = ['user', 'example']
@@ -89,20 +89,23 @@ describe('AdRepository Positive', () => {
     assert.strictEqual(actual, null)
   })
 
-  // it('.update', () => {
-  //   const actual = repo.update({
-  //     find: {
-  //       id: 'some',
-  //     },
-  //     fields: {
-  //       satus: 'active',
-  //     },
-  //   })
-  //   assert.strictEqual(actual, true)
-  //   const newAd = repo.find({find: {id: ad.id}})
-  //   assert.notStrictEqual(newAd, null)
-  //   assert.strictEqual((actual as unknown as Ad[])[0].satus, 'active')
-  // })
+  it('.update', async () => {
+    const actual = await repo.update({
+      find: {
+        _id: new ObjectId(ad._id),
+      },
+      fields: {
+        satus: 'active',
+      },
+      options: {
+        includeResultMetadata: true,
+      },
+    })
+    assert.strictEqual(actual, true)
+    const newAd = await repo.find({find: {_id: ad._id}})
+    assert.notStrictEqual(newAd, null)
+    assert.strictEqual((newAd as unknown as Ad<Required>[])[0].satus, 'active')
+  })
 
   // it('.delete', () => {
   //   const actual = repo.dalete({

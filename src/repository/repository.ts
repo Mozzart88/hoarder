@@ -15,7 +15,8 @@ interface QFields<Ent> {
 
 export type TQuery<
   T extends QFind<Ent<Optional | Required>> | QFields<Ent<Optional | Required>>,
-> = T & Query<object>
+  OPS extends object = object,
+> = T & Query<OPS>
 
 export interface Repository<
   OEnt extends Ent<Optional>,
