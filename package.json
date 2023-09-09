@@ -21,6 +21,7 @@
 		"eslint-config-prettier": "^8.8.0",
 		"husky": "^8.0.3",
 		"lint-staged": "^13.2.3",
+		"mongodb-express": "^1.0.1",
 		"nodemon": "^2.0.22",
 		"prettier": "3.0.0",
 		"tsx": "^3.12.7",
@@ -32,11 +33,11 @@
 		]
 	},
 	"scripts": {
-    "build": "tsc",
+		"build": "tsc",
 		"prestart": "npm run build",
 		"start": "node build/src/app.js",
 		"dev": "concurrently \"npx --watch\" \"nodemon -L\"",
-    "pretest": "npm run build",
+		"pretest": "npm run build",
 		"test": "node --test --test-reporter=spec build/test/",
 		"format": "prettier --write src/**/*.ts*",
 		"lint": "eslint . --max-warnings 0 --report-unused-disable-directives",
@@ -44,5 +45,8 @@
 		"prepare": "husky install",
 		"coverage": "c8 --check-coverage",
 		"test:coverage": "npm run coverage npm test"
+	},
+	"dependencies": {
+		"mongodb": "^6.0.0"
 	}
 }
