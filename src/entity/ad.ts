@@ -1,7 +1,5 @@
 import {Category} from './category.js'
-import SubCategory from './subCategory.js'
-import SubType from './subType.js'
-import Type from './type.js'
+import {Type} from './type.js'
 import User from './user.js'
 import Tag from './tag.js'
 import {ObjectId} from 'mongodb'
@@ -15,10 +13,10 @@ export interface Required {
   title: string
   description: string
   price: number
-  category: Category<{id?: number; name: string}>
-  subCategory: SubCategory
-  type: Type
-  subType: SubType
+  category: Category<{_id: ObjectId; name: string}>
+  subCategory: string
+  type: Type<{_id: ObjectId; name: string}>
+  subType: string
   user: User
   satus: Status
   tags?: Tag[]
@@ -30,10 +28,10 @@ export interface Optional {
   title?: string
   description?: string
   price?: number
-  category?: Category<{id?: number; name: string}>
-  subCategory?: SubCategory
-  type?: Type
-  subType?: SubType
+  category?: Category<{_id: ObjectId; name: string}>
+  subCategory?: string
+  type?: Type<{_id: ObjectId; name: string}>
+  subType?: string
   user?: User
   satus?: Status
   tags?: Tag[]
