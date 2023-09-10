@@ -1,4 +1,4 @@
-import Category from './category.js'
+import {Category} from './category.js'
 import SubCategory from './subCategory.js'
 import SubType from './subType.js'
 import Type from './type.js'
@@ -15,7 +15,7 @@ export interface Required {
   title: string
   description: string
   price: number
-  category: Category
+  category: Category<{id?: number; name: string}>
   subCategory: SubCategory
   type: Type
   subType: SubType
@@ -30,7 +30,7 @@ export interface Optional {
   title?: string
   description?: string
   price?: number
-  category?: Category
+  category?: Category<{id?: number; name: string}>
   subCategory?: SubCategory
   type?: Type
   subType?: SubType
