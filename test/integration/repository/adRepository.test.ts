@@ -15,21 +15,15 @@ describe('AdRepository Positive', () => {
     description: 'Hello!!!',
     date: new Date().getTime(),
     category: {
-      id: 1,
+      _id: new ObjectId('deadbeafdeadbeafdeadbeaf'),
       name: 'Electronics',
     },
-    subCategory: {
-      id: 1,
-      name: 'cell phone',
-    },
+    subCategory: 'cell phone',
     type: {
-      id: 1,
+      _id: new ObjectId('deadbeafdeadbeafdeadbeaf'),
       name: '??',
     },
-    subType: {
-      id: 1,
-      name: '!!',
-    },
+    subType: '!!',
     price: 99.99,
     satus: 'new',
     tags: [{name: '#iPhone', id: 1}],
@@ -62,14 +56,8 @@ describe('AdRepository Positive', () => {
     const actual = await repo.find({
       find: {
         title: 'iPhone 15 Pro Max',
-        subCategory: {
-          id: 1,
-          name: 'cell phone',
-        },
-        subType: {
-          id: 1,
-          name: '!!',
-        },
+        subCategory: 'cell phone',
+        subType: '!!',
         price: 99.99,
         satus: 'new',
         tags: [{name: '#iPhone', id: 1}],
