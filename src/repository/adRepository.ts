@@ -1,8 +1,6 @@
 import {
-  Collection,
   FindOneAndDeleteOptions,
   FindOneAndUpdateOptions,
-  MongoClient,
   MongoOptions,
 } from 'mongodb'
 import {Ad, Optional, Required} from '../entity/ad.js'
@@ -11,45 +9,19 @@ import {Repository, TQuery} from './repository.js'
 type OAd = Ad<Optional>
 type RAd = Ad<Required>
 
-export default class AdRepository implements Repository<OAd, RAd> {
-  private client: MongoClient
-  private db: string
-  private collection: string
+export default class AdRepository extends Repository<OAd, RAd> {
+  protected readonly DB: string = 'hoarder'
+  protected readonly COLLECTION: string = 'ads'
   constructor(opts: {url: string; conf?: MongoOptions}) {
-    this.client = new MongoClient(opts.url, opts.conf)
-    this.db = 'hoarder'
-    this.collection = 'ads'
-  }
-  private async connect(): Promise<Collection<Ad<Required>>> {
-    const client = await this.client.connect()
-    return client.db(this.db).collection(this.collection)
-  }
-
-  private async close() {
-    await this.client.close()
+    super(opts)
   }
 
   async find(query: TQuery<{find: Ad<Optional>}>): Promise<RAd[] | null> {
-    const {find, options} = query
-    try {
-      const collection = await this.connect()
-      const res = await collection.find(find, options).toArray()
-      if (res.length === 0) return null
-      return res as RAd[]
-    } finally {
-      await this.close()
-    }
+    return await super.find(query)
   }
 
   async add(query: TQuery<{fields: Ad<Required>}>): Promise<void> {
-    const {fields, options} = query
-    try {
-      const collection = await this.connect()
-      const res = await collection.insertOne(fields, options)
-      if (res.acknowledged !== true) throw new Error('acknowledgis failed')
-    } finally {
-      await this.client.close()
-    }
+    return await super.add(query)
   }
 
   async update(
@@ -64,14 +36,7 @@ export default class AdRepository implements Repository<OAd, RAd> {
       }
     >
   ): Promise<boolean> {
-    const {fields, find, options} = query
-    try {
-      const collection = await this.connect()
-      await collection.findOneAndUpdate(find, {$set: fields}, options)
-      return true
-    } finally {
-      await this.close()
-    }
+    return await super.update(query)
   }
 
   async dalete(
@@ -82,13 +47,6 @@ export default class AdRepository implements Repository<OAd, RAd> {
       }
     >
   ): Promise<boolean> {
-    const {find, options} = query
-    try {
-      const collection = await this.connect()
-      await collection.findOneAndDelete(find, options)
-      return true
-    } finally {
-      await this.close()
-    }
+    return await super.dalete(query)
   }
 }
